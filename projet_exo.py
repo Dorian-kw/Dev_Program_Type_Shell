@@ -2,54 +2,77 @@
 #Différents Import utiles
 import random
 import datetime
+import argparse
+import logging
 
-# Charger le fichier CSV
-with open("tableau_projet.csv", "r") as mon_flux:
-    tableau = mon_flux.readlines()
+# Configuration du logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Transformer les lignes en listes et convertir les prix en float
-for compteur in range(0, len(tableau)):
-    tableau[compteur] = tableau[compteur].strip().split(';')
+def charger_tableau(csv_file):
+    """Charge et transforme le tableau depuis un fichier CSV."""
+    with open(csv_file, "r") as mon_flux:
+        tableau = mon_flux.readlines()
 
-for compteur in range(1, len(tableau)):
-    tableau[compteur][1] = float(tableau[compteur][1])
+    for compteur in range(0, len(tableau)):
+        tableau[compteur] = tableau[compteur].strip().split(';')
 
-# Obtenir la date du jour
-date = datetime.date.today()
+    for compteur in range(1, len(tableau)):
+        tableau[compteur][1] = float(tableau[compteur][1])
 
-# Générer un numéro de commande aléatoire
-numero_commande = random.randint(1044, 9999)
+    return tableau
 
-# Fonction pour obtenir une entrée valide
 def obtenir_nombre_valide():
+    """Demande à l'utilisateur un entier positif ou zéro."""
     while True:
         try:
             valeur = int(input())  # Tente de convertir l'entrée en entier
-            if valeur < 0:  # Vérifie si l'entrée est négative
+            if valeur < 0:
                 print("Veuillez entrer un nombre entier positif ou égal à zéro.")
             else:
-                return valeur  # Retourne la valeur si elle est valide
-        except ValueError:  # Gère les cas où l'entrée n'est pas un nombre
+                return valeur
+        except ValueError:
             print("Entrée invalide. Veuillez entrer un nombre entier positif ou égal à zéro.")
 
-# Programme principal
-total = 0
-ticket = ""
-print("\nSélectionnez le nombre d'aliments que vous désirez dans le menu")
+def calculer_total_et_ticket(tableau):
+    """Calcule le total et génère un ticket basé sur les choix de l'utilisateur."""
+    total = 0
+    ticket = ""
 
-for compteur in range(1, len(tableau)):
-    ptit_total = 0
-    print(f"\nCombien de {tableau[compteur][0]} voulez-vous ?")
-    nombre = obtenir_nombre_valide()  # Redemande tant que l'entrée n'est pas valide
+    print("\nSélectionnez le nombre d'aliments que vous désirez dans le menu")
 
-    # Calculer le sous-total uniquement si le nombre est valide
-    if nombre > 0:
-        ptit_total = nombre * tableau[compteur][1]
-        ticket += f"{ptit_total:.2f}€     {nombre}x {tableau[compteur][0]}\n"
-        total += ptit_total
+    for compteur in range(1, len(tableau)):
+        print(f"\nCombien de {tableau[compteur][0]} voulez-vous ?")
+        nombre = obtenir_nombre_valide()
 
-# Afficher le ticket
-print("\n", date)
-print(f"Ticket Commande n° {numero_commande}\n{ticket}")
-print(f"TOTAL    {total:.2f}€")
+        if nombre > 0:
+            ptit_total = nombre * tableau[compteur][1]
+            ticket += f"{ptit_total:.2f}€     {nombre}x {tableau[compteur][0]}\n"
+            total += ptit_total
 
+    return total, ticket
+
+def afficher_ticket(total, ticket):
+    """Affiche le ticket de commande."""
+    date = datetime.date.today()
+    numero_commande = random.randint(1044, 9999)
+
+    print("\n", date)
+    print(f"Ticket Commande n° {numero_commande}\n{ticket}")
+    print(f"TOTAL    {total:.2f}€")
+
+def main():
+    parser = argparse.ArgumentParser(description="Programme de commande interactif en ligne de commande.")
+    parser.add_argument("csv_file", type=str, help="Chemin vers le fichier CSV contenant le menu.")
+    args = parser.parse_args()
+
+    try:
+        tableau = charger_tableau(args.csv_file)
+        total, ticket = calculer_total_et_ticket(tableau)
+        afficher_ticket(total, ticket)
+    except FileNotFoundError:
+        logging.error("Le fichier spécifié est introuvable. Veuillez vérifier le chemin et réessayer.")
+    except Exception as e:
+        logging.error(f"Une erreur inattendue s'est produite : {e}")
+
+if __name__ == "__main__":
+    main()
