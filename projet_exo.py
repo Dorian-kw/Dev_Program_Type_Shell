@@ -1,49 +1,55 @@
-#Dorian Kwizera 2024
+#Dorian Kwizera 2022-
 #Différents Import utiles
 import random
 import datetime
 
-#Usage d'information d'un fichier csv
-mon_flux = open("tableau_projet.csv","r")
+# Charger le fichier CSV
+with open("tableau_projet.csv", "r") as mon_flux:
+    tableau = mon_flux.readlines()
 
-tableau =mon_flux.readlines()
+# Transformer les lignes en listes et convertir les prix en float
+for compteur in range(0, len(tableau)):
+    tableau[compteur] = tableau[compteur].strip().split(';')
 
-mon_flux.close()
-
-for compteur in range(0,len(tableau)):
-    tableau[compteur] = tableau[compteur].split(';')
-
-for compteur in range(1,len(tableau)):
+for compteur in range(1, len(tableau)):
     tableau[compteur][1] = float(tableau[compteur][1])
 
-#Avoir la date du ticket datetime(year, month, day, hour, minute, second, microsecond)
+# Obtenir la date du jour
 date = datetime.date.today()
 
-#Avoir un nombre élévé au hasard comme numéro de commande pour avoir un numéro +/- réaliste
-numero_commande = random. randint(1044, 9999)
+# Générer un numéro de commande aléatoire
+numero_commande = random.randint(1044, 9999)
 
-#Programme principal
+# Fonction pour obtenir une entrée valide
+def obtenir_nombre_valide():
+    while True:
+        try:
+            valeur = int(input())  # Tente de convertir l'entrée en entier
+            if valeur < 0:  # Vérifie si l'entrée est négative
+                print("Veuillez entrer un nombre entier positif ou égal à zéro.")
+            else:
+                return valeur  # Retourne la valeur si elle est valide
+        except ValueError:  # Gère les cas où l'entrée n'est pas un nombre
+            print("Entrée invalide. Veuillez entrer un nombre entier positif ou égal à zéro.")
+
+# Programme principal
 total = 0
 ticket = ""
-print("\nSéléctionner le nombre d'aliment que vous désirez dans le menu")
-for compteur in range(1,len(tableau)):
+print("\nSélectionnez le nombre d'aliments que vous désirez dans le menu")
+
+for compteur in range(1, len(tableau)):
     ptit_total = 0
-    print("\nCombien de",tableau[compteur][0],"voulez vous ?")
-    try :
-        nombre = int(input())
-    except ValueError :
-        print("Vous n'avez pas entré de nombre entier, donc pas de",tableau[compteur][0],"pour vous.\n")
-    else:
-        total = total + nombre * tableau[compteur][1]
+    print(f"\nCombien de {tableau[compteur][0]} voulez-vous ?")
+    nombre = obtenir_nombre_valide()  # Redemande tant que l'entrée n'est pas valide
+
+    # Calculer le sous-total uniquement si le nombre est valide
+    if nombre > 0:
         ptit_total = nombre * tableau[compteur][1]
-        print(" ")
-        print("nombre de",tableau[compteur][0],":", nombre)
-        print(" ")
-        if nombre>0:
-            ticket = ticket +str(ptit_total) +"€     "+str(nombre) +"x " + tableau[compteur][0] +"\n"
+        ticket += f"{ptit_total:.2f}€     {nombre}x {tableau[compteur][0]}\n"
+        total += ptit_total
 
-print(date)
-print("Ticket Commande n°",numero_commande,"\n"+ticket)
-print("TOTAL   ",total,"€")
-
+# Afficher le ticket
+print("\n", date)
+print(f"Ticket Commande n° {numero_commande}\n{ticket}")
+print(f"TOTAL    {total:.2f}€")
 
