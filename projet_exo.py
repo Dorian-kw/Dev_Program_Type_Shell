@@ -19,7 +19,7 @@ for compteur in range(1,len(tableau)):
 #Avoir la date du ticket datetime(year, month, day, hour, minute, second, microsecond)
 date = datetime.date.today()
 
-#Avoir un nombre élévé au hasard comme numéro de commande
+#Avoir un nombre élévé au hasard comme numéro de commande pour avoir un numéro +/- réaliste
 numero_commande = random. randint(1044, 9999)
 
 #Programme principal
