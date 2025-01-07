@@ -1,11 +1,12 @@
-#Dorian Kwizera 2022-
+#Dorian Kwizera 2024
+#Preuve utilisation Git Kraken
 #Différents Import utiles
 import random
 import datetime
 import argparse
 import logging
 
-# Configuration du logging
+# Configuration logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def charger_tableau(csv_file):
